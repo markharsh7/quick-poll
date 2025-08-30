@@ -36,11 +36,11 @@ function CreatePage() {
 
   return (
     <div>
-      <h1>Create a New Poll</h1>
+      <h1>Create a Real-Time Poll</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Poll Question"
+          placeholder="Enter your poll question here..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           required
@@ -55,8 +55,10 @@ function CreatePage() {
             onChange={(e) => handleOptionChange(index, e.target.value)}
           />
         ))}
-        <button type="button" onClick={addOption}>Add Option</button>
-        <button type="submit">Create Poll</button>
+        <div className="button-group">
+            <button type="button" className="btn-secondary" onClick={addOption}>Add Option</button>
+            <button type="submit" className="btn-primary">Create Poll</button>
+        </div>
       </form>
     </div>
   );

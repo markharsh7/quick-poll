@@ -9,12 +9,11 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 function ResultsPage() {
   const [poll, setPoll] = useState(null);
-  const [hasVoted, setHasVoted] = useState(false); // State to track voting status
+  const [hasVoted, setHasVoted] = useState(false);
   const { pollId } = useParams();
   const voteUrl = `${window.location.origin}/poll/${pollId}/vote`;
 
   useEffect(() => {
-    // Check localStorage to see if the user has voted
     const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '[]');
     if (votedPolls.includes(pollId)) {
       setHasVoted(true);
@@ -47,19 +46,27 @@ function ResultsPage() {
   return (
     <div>
       <h2>{poll.question}</h2>
-      {hasVoted && <p style={{ color: '#27ae60', fontWeight: 'bold' }}>You have already voted in this poll.</p>}
+      {hasVoted && <p style={{ color: '#58D68D', fontWeight: 'bold' }}>You have already voted in this poll.</p>}
+      
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Bar dataKey="votes" fill="#8884d8" />
+        <BarChart data={data} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.2)" />
+          <XAxis dataKey="name" tick={{ fill: '#f0f0f0' }} />
+          <YAxis allowDecimals={false} tick={{ fill: '#f0f0f0' }} />
+          <Tooltip 
+            cursor={{fill: 'rgba(255, 255, 255, 0.1)'}}
+            contentStyle={{
+              background: 'rgba(0, 0, 0, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '10px'
+            }}
+          />
+          <Bar dataKey="votes" fill="#a569bd" />
         </BarChart>
       </ResponsiveContainer>
+
       <h3>Share this poll!</h3>
       <p>
-        {/* Conditionally render the link to prevent re-voting */}
         {!hasVoted && <Link to={`/poll/${pollId}/vote`}>Go to Voting Page</Link>}
       </p>
       <div className="qr-code-container">
