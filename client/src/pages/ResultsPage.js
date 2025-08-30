@@ -3,32 +3,29 @@ import axios from 'axios';
 import { useParams, Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import io from 'socket.io-client';
-import QRCode from 'qrcode.react';
+import QRCode from "react-qr-code"; 
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 function ResultsPage() {
   const [poll, setPoll] = useState(null);
   const { pollId } = useParams();
+  // We use window.location.origin to be safe, but you might want to hardcode the Vercel URL
   const voteUrl = `${window.location.origin}/poll/${pollId}/vote`;
 
   useEffect(() => {
     const socket = io(API_URL);
     
-    // Fetch initial poll data
     axios.get(`${API_URL}/api/polls/${pollId}`)
       .then(res => setPoll(res.data))
       .catch(err => console.error(err));
 
-    // Join the room for this poll
     socket.emit('join-poll', pollId);
 
-    // Listen for real-time updates
     socket.on('results-updated', (updatedPoll) => {
       setPoll(updatedPoll);
     });
 
-    // Cleanup on component unmount
     return () => {
       socket.disconnect();
     };
@@ -58,7 +55,8 @@ function ResultsPage() {
         <Link to={`/poll/${pollId}/vote`}>Go to Voting Page</Link>
       </p>
       <div className="qr-code-container">
-        <QRCode value={voteUrl} />
+         {/* The new component usage is slightly different */}
+        <QRCode value={voteUrl} size={128} />
       </div>
     </div>
   );
