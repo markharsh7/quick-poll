@@ -4,14 +4,24 @@ import { useParams, useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 
 const API_URL = process.env.REACT_APP_API_URL;
-const socket = io(API_URL);
 
 function VotePage() {
   const [poll, setPoll] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
   const { pollId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if the user has already voted on this poll
+    const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '[]');
+    if (votedPolls.includes(pollId)) {
+      setHasVoted(true);
+      // If they've already voted, just show them the results directly.
+      navigate(`/poll/${pollId}/results`);
+      return; // Stop execution to avoid fetching poll data
+    }
+
+    // If not voted, fetch the poll data
     axios.get(`${API_URL}/api/polls/${pollId}`)
       .then(res => setPoll(res.data))
       .catch(err => {
@@ -22,11 +32,22 @@ function VotePage() {
   }, [pollId, navigate]);
 
   const handleVote = (optionId) => {
+    const socket = io(API_URL);
     socket.emit('vote', { pollId, optionId });
+
+    // Store the pollId in localStorage to prevent future votes
+    const votedPolls = JSON.parse(localStorage.getItem('votedPolls') || '[]');
+    votedPolls.push(pollId);
+    localStorage.setItem('votedPolls', JSON.stringify(votedPolls));
+
+    // Redirect to results page
     navigate(`/poll/${pollId}/results`);
   };
 
-  if (!poll) return <h2>Loading poll...</h2>;
+  // While loading or if the user has already voted and is being redirected
+  if (!poll || hasVoted) {
+    return <h2>Loading...</h2>;
+  }
 
   return (
     <div>
